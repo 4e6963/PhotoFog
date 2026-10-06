@@ -3,5 +3,3 @@ web/dist
 data
 .git
 .idea
-.env
-.env.*

@@ -1,0 +1,17 @@
+# Local development: builds the image from this checkout.
+#   docker compose -f docker-compose.dev.yml up --build
+services:
+  photofog:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      VAPID_SUBJECT: "mailto:admin@localhost"
+      # Enables POST /api/debug/run-check to trigger the notification check manually.
+      DEBUG: "1"
+    volumes:
+      # KV store (push subscriptions) and the generated VAPID keys.
+      - photofog-dev-data:/data
+
+volumes:
+  photofog-dev-data:

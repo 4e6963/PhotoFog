@@ -1,16 +1,16 @@
 # Production: runs the image published by GitHub Actions.
-# Settings come from .env (copy .env.example), then:
 #   docker compose pull && docker compose up -d
 services:
   photofog:
-    image: "${PHOTOFOG_IMAGE:?set PHOTOFOG_IMAGE in .env, e.g. ghcr.io/<owner>/photofog:latest}"
+    # Replace <owner> with your GitHub user or organization.
+    image: ghcr.io/4e6963/photofog:latest
     restart: unless-stopped
     ports:
       # Only reachable from this host; expose it through your HTTPS reverse proxy.
-      - "127.0.0.1:${PHOTOFOG_PORT:-8000}:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       # Contact address sent to push services (required by VAPID).
-      VAPID_SUBJECT: "${VAPID_SUBJECT:?set VAPID_SUBJECT in .env, e.g. mailto:you@example.com}"
+      VAPID_SUBJECT: "mailto:you@example.com"
       # The reverse proxy sets X-Forwarded-For (used for rate limiting).
       TRUST_PROXY: "1"
     volumes:

@@ -34,10 +34,10 @@ immediately.
 
 ## Deployment (Docker)
 
-**Production** (`docker-compose.yml`) runs the image published by CI:
+**Production** (`docker-compose.yml`) runs the image published by CI. Set `image` (your GitHub
+owner) and `VAPID_SUBJECT` in the file first:
 
 ```sh
-cp .env.example .env    # set PHOTOFOG_IMAGE and VAPID_SUBJECT (.env is not committed)
 docker compose pull && docker compose up -d
 ```
 
