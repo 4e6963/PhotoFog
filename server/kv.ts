@@ -12,8 +12,18 @@ export interface StoredSub extends SyncPayload {
 let kv: Deno.Kv | undefined;
 
 export async function openStore(path = Deno.env.get("KV_PATH") ?? "./data/kv.sqlite3") {
-  if (path !== ":memory:") await Deno.mkdir(path.replace(/[/\\][^/\\]*$/, ""), { recursive: true });
-  kv = await Deno.openKv(path);
+  try {
+    if (path !== ":memory:") {
+      await Deno.mkdir(path.replace(/[/\\][^/\\]*$/, ""), { recursive: true });
+    }
+    kv = await Deno.openKv(path);
+  } catch (e) {
+    const uid = Deno.uid?.() ?? "?";
+    throw new Error(
+      `cannot open KV store at ${path} (running as uid ${uid}): ${(e as Error).message}. ` +
+        `Make sure its directory is writable by this user (in Docker: the /data volume).`,
+    );
+  }
   return kv;
 }
 

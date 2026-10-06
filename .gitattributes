@@ -1,0 +1,3 @@
+# Keep scripts LF even with core.autocrlf on Windows; CRLF breaks the container entrypoint.
+*.sh text eol=lf
+Dockerfile text eol=lf

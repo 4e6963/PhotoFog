@@ -17,9 +17,12 @@ COPY --from=build /app/web/deno.json web/
 COPY --from=build /app/shared shared
 COPY --from=build /app/server server
 COPY --from=build /app/web/dist web/dist
+COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/photofog-entrypoint
 RUN mkdir -p /data && chown -R deno:deno /data /app
 USER deno
 RUN deno cache server/main.ts
+# The entrypoint starts as root to fix /data ownership, then drops to the deno user.
+USER root
 
 ENV PORT=8000 \
     KV_PATH=/data/kv.sqlite3 \
@@ -27,4 +30,5 @@ ENV PORT=8000 \
 VOLUME /data
 EXPOSE 8000
 HEALTHCHECK --interval=60s --timeout=5s CMD deno eval "const r = await fetch('http://localhost:8000/api/health'); Deno.exit(r.ok ? 0 : 1)" || exit 1
+ENTRYPOINT ["/tini", "--", "photofog-entrypoint"]
 CMD ["run", "--allow-net", "--allow-env", "--allow-read", "--allow-write=/data", "server/main.ts"]
