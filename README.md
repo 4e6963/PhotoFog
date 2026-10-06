@@ -34,8 +34,21 @@ immediately.
 
 ## Deployment (Docker)
 
+**Production** (`docker-compose.yml`) runs the image published by CI:
+
 ```sh
-docker compose up -d --build
+cp .env.example .env    # set PHOTOFOG_IMAGE and VAPID_SUBJECT (.env is not committed)
+docker compose pull && docker compose up -d
+```
+
+The port is bound to `127.0.0.1` for a reverse proxy on the same host. The `photofog-data` volume
+holds the push subscriptions and `vapid.json` — back it up.
+
+**Local container build** (`docker-compose.dev.yml`) builds from the checkout, with `DEBUG=1` and a
+separate volume:
+
+```sh
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 CI (`.github/workflows/container.yml`) runs fmt/lint/check/tests, then builds a multi-arch image

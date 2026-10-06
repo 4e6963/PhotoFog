@@ -1,18 +1,21 @@
+# Production: runs the image published by GitHub Actions.
+# Settings come from .env (copy .env.example), then:
+#   docker compose pull && docker compose up -d
 services:
   photofog:
-    build: .
-    # Or use the image published by GitHub Actions instead of building locally:
-    # image: ghcr.io/<owner>/<repo>:latest
+    image: "${PHOTOFOG_IMAGE:?set PHOTOFOG_IMAGE in .env, e.g. ghcr.io/<owner>/photofog:latest}"
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      # Only reachable from this host; expose it through your HTTPS reverse proxy.
+      - "127.0.0.1:${PHOTOFOG_PORT:-8000}:8000"
     environment:
       # Contact address sent to push services (required by VAPID).
-      VAPID_SUBJECT: "mailto:you@example.com"
-      # Set when behind a reverse proxy that sets X-Forwarded-For (used for rate limiting).
+      VAPID_SUBJECT: "${VAPID_SUBJECT:?set VAPID_SUBJECT in .env, e.g. mailto:you@example.com}"
+      # The reverse proxy sets X-Forwarded-For (used for rate limiting).
       TRUST_PROXY: "1"
     volumes:
-      # KV store (push subscriptions) and the generated VAPID keys.
+      # KV store (push subscriptions) and the generated VAPID keys. Back this up:
+      # losing vapid.json invalidates every existing push subscription.
       - photofog-data:/data
 
 volumes:
