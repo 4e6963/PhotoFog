@@ -1,0 +1,19 @@
+services:
+  photofog:
+    build: .
+    # Or use the image published by GitHub Actions instead of building locally:
+    # image: ghcr.io/<owner>/<repo>:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Contact address sent to push services (required by VAPID).
+      VAPID_SUBJECT: "mailto:you@example.com"
+      # Set when behind a reverse proxy that sets X-Forwarded-For (used for rate limiting).
+      TRUST_PROXY: "1"
+    volumes:
+      # KV store (push subscriptions) and the generated VAPID keys.
+      - photofog-data:/data
+
+volumes:
+  photofog-data:
