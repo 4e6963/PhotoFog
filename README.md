@@ -4,6 +4,8 @@ PWA dashboard + push notifications for photography weather: **fog/mist**, **colo
 sunrise/sunset** and **sea of clouds (inversions)**. Forecast data from
 [Open-Meteo](https://open-meteo.com/) (no API key).
 
+**Live at [photofog.app](https://photofog.app/)**
+
 - Locations, filters and preferences live **only in the browser** (localStorage, export/import as
   JSON).
 - For push, the browser syncs its subscription + locations + notification prefs to the server (Deno
