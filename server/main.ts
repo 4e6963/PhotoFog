@@ -121,5 +121,6 @@ if (import.meta.main) {
   await openStore();
   await initPush();
   Deno.cron("photofog-check", "5 * * * *", () => runCheck().then(() => {}));
-  Deno.serve({ port: PORT }, createApp().fetch);
+  // Deno Deploy assigns the listener itself.
+  Deno.serve(Deno.env.get("DENO_DEPLOY") ? {} : { port: PORT }, createApp().fetch);
 }

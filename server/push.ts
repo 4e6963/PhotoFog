@@ -1,5 +1,6 @@
 // Web Push (RFC 8291/8292) via @negrel/webpush. VAPID keys come from VAPID_KEYS (JSON) or are
-// generated once into VAPID_FILE so a fresh self-hosted instance works without setup.
+// generated once into VAPID_FILE so a fresh self-hosted instance works without setup. Deno Deploy
+// has no writable disk, so there VAPID_KEYS is required (`deno task vapid` prints a new pair).
 import * as webpush from "@negrel/webpush";
 import type { SyncPayload } from "../shared/types.ts";
 
@@ -17,20 +18,26 @@ let publicKey: string;
 async function loadKeys(): Promise<webpush.ExportedVapidKeys> {
   const env = Deno.env.get("VAPID_KEYS");
   if (env) return JSON.parse(env);
+  if (Deno.env.get("DENO_DEPLOY")) {
+    throw new Error("VAPID_KEYS is not set (generate a pair with `deno task vapid`)");
+  }
 
   const file = Deno.env.get("VAPID_FILE") ?? "./data/vapid.json";
   try {
     return JSON.parse(await Deno.readTextFile(file));
   } catch (e) {
     if (!(e instanceof Deno.errors.NotFound)) throw e;
-    const exported = await webpush.exportVapidKeys(
-      await webpush.generateVapidKeys({ extractable: true }),
-    );
+    const exported = await generateKeys();
     await Deno.mkdir(file.replace(/[/\\][^/\\]*$/, ""), { recursive: true });
     await Deno.writeTextFile(file, JSON.stringify(exported, null, 2));
     console.log(`generated new VAPID keys in ${file}`);
     return exported;
   }
+}
+
+/** A new key pair in the format VAPID_KEYS and VAPID_FILE expect. */
+export async function generateKeys(): Promise<webpush.ExportedVapidKeys> {
+  return await webpush.exportVapidKeys(await webpush.generateVapidKeys({ extractable: true }));
 }
 
 export async function initPush() {

@@ -57,14 +57,33 @@ and on `v*` tags (`1.2.3`, `1.2`). Pull requests only build. New GHCR packages a
 default.
 
 Put it behind an HTTPS reverse proxy (service workers and push require a secure origin).
+
+## Deployment (Deno Deploy)
+
+The same code runs on [Deno Deploy](https://deno.com/deploy). There it detects `DENO_DEPLOY` and
+uses the app's attached KV database and the platform-assigned listener; `Deno.cron` runs the hourly
+check.
+
+1. Generate VAPID keys once and keep them safe — losing them invalidates every push subscription:
+   ```sh
+   deno task vapid
+   ```
+2. Create an app from this repository with these build settings:
+   - Install command: `deno install`
+   - Build command: `deno task build`
+   - Entrypoint: `server/main.ts`
+3. Attach a Deno KV database to the app.
+4. Set the env vars `VAPID_KEYS` (the JSON from step 1, as a secret) and `VAPID_SUBJECT`. Don't set
+   `KV_PATH`, `VAPID_FILE` or `TRUST_PROXY`.
+
 Configuration (env):
 
 | Variable              | Default                  |                                                                |
 | --------------------- | ------------------------ | -------------------------------------------------------------- |
 | `PORT`                | `8000`                   |                                                                |
-| `KV_PATH`             | `./data/kv.sqlite3`      | `/data/...` in Docker (volume)                                 |
+| `KV_PATH`             | `./data/kv.sqlite3`      | `/data/...` in Docker (volume); the attached KV on Deno Deploy |
 | `VAPID_FILE`          | `./data/vapid.json`      | Generated on first start — keep it, or all subscriptions break |
-| `VAPID_KEYS`          | –                        | Alternatively the JWK JSON of the keys                         |
+| `VAPID_KEYS`          | –                        | Alternatively the JWK JSON of the keys (required on Deploy)    |
 | `VAPID_SUBJECT`       | `mailto:admin@localhost` | Contact for push services                                      |
 | `TRUST_PROXY`         | –                        | `1` to use `X-Forwarded-For` for rate limiting                 |
 | `PUSH_HOST_ALLOWLIST` | FCM, Mozilla, WNS, Apple | Comma-separated push service hosts (`.suffix` allowed)         |
