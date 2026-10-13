@@ -32,7 +32,7 @@ export function Dashboard({ focus }: { focus: string | null }) {
         />
       )}
 
-      {locations.value.length === 0 && !adding
+      {locations.value.length === 0
         ? (
           <div class="empty">
             <p>
@@ -58,11 +58,9 @@ export function Dashboard({ focus }: { focus: string | null }) {
                 />
               ))}
             </div>
-            {!adding && (
-              <button type="button" class="btn add-btn" onClick={() => setAdding(true)}>
-                + Add location
-              </button>
-            )}
+            <button type="button" class="btn add-btn" onClick={() => setAdding(true)}>
+              + Add location
+            </button>
           </>
         )}
     </main>

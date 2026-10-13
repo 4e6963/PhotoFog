@@ -577,6 +577,67 @@ input[type="checkbox"] {
   margin-bottom: 0.75rem;
 }
 
+/* Modal pinned near the top: growing search results don't make it jump, and on phones the
+   on-screen keyboard doesn't cover the input. */
+.sheet {
+  width: min(34rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem - env(safe-area-inset-top));
+  margin: calc(1rem + env(safe-area-inset-top)) auto auto;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+@media (min-width: 640px) {
+  .sheet {
+    margin-top: 10vh;
+    max-height: 80vh;
+  }
+}
+.sheet > .panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 0;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.35);
+}
+/* The gap does the spacing here; drop the panel's per-element margins. */
+.sheet > .panel > *,
+.sheet > .panel > .row,
+.sheet > .panel h2,
+.sheet > .panel p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.sheet .results {
+  margin: -0.4rem -0.6rem;
+}
+.sheet::backdrop {
+  background: rgb(8 12 20 / 0.55);
+  backdrop-filter: blur(2px);
+}
+.sheet[open] {
+  animation: sheet-in 0.15s ease-out;
+}
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet[open] {
+    animation: none;
+  }
+}
+/* Keep the page behind the modal from scrolling. */
+html:has(.sheet[open]) {
+  overflow: hidden;
+}
+
 .results {
   list-style: none;
   padding: 0;

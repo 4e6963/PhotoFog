@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { addLocation } from "../store.ts";
 
 interface GeoResult {
@@ -18,6 +18,9 @@ export function AddLocation({ onDone }: { onDone: (id?: string) => void }) {
   const [results, setResults] = useState<GeoResult[]>([]);
   const [status, setStatus] = useState<string | null>(null);
   const [manual, setManual] = useState({ name: "", lat: "", lon: "" });
+  const dialog = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => dialog.current?.showModal(), []);
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -78,64 +81,75 @@ export function AddLocation({ onDone }: { onDone: (id?: string) => void }) {
   };
 
   return (
-    <div class="panel">
-      <div class="row space">
-        <h2>Add location</h2>
-        <button type="button" class="btn-ghost" onClick={() => onDone()} aria-label="Close">
-          ✕
-        </button>
-      </div>
-      <input
-        type="search"
-        placeholder="Search a town or region, e.g. Bled or Rathen"
-        value={query}
-        onInput={(e) => setQuery(e.currentTarget.value)}
-        autoFocus
-      />
-      <ul class="results">
-        {results.map((r) => (
-          <li key={r.id}>
-            <button type="button" onClick={() => pick(r)}>
-              <strong>{r.name}</strong>
-              <span class="muted small">
-                {[r.admin1, r.country].filter(Boolean).join(", ")}
-                {r.elevation !== undefined && ` · ${Math.round(r.elevation)} m`}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
-      {status && <p class="muted small">{status}</p>}
-
-      <div class="row gap wrap">
-        {"geolocation" in navigator && (
-          <button type="button" class="btn" onClick={useMyLocation}>📍 Use my location</button>
+    // Modal so it opens in view wherever the list is scrolled; Esc and backdrop clicks close it.
+    <dialog
+      ref={dialog}
+      class="sheet"
+      aria-labelledby="add-location-title"
+      onClose={() => onDone()}
+      onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()}
+    >
+      <div class="panel">
+        <div class="row space">
+          <h2 id="add-location-title">Add location</h2>
+          <button type="button" class="btn-ghost" onClick={() => onDone()} aria-label="Close">
+            ✕
+          </button>
+        </div>
+        <input
+          type="search"
+          placeholder="Search a town or region, e.g. Bled or Rathen"
+          value={query}
+          onInput={(e) => setQuery(e.currentTarget.value)}
+          autoFocus
+        />
+        {results.length > 0 && (
+          <ul class="results">
+            {results.map((r) => (
+              <li key={r.id}>
+                <button type="button" onClick={() => pick(r)}>
+                  <strong>{r.name}</strong>
+                  <span class="muted small">
+                    {[r.admin1, r.country].filter(Boolean).join(", ")}
+                    {r.elevation !== undefined && ` · ${Math.round(r.elevation)} m`}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
-      </div>
+        {status && <p class="muted small">{status}</p>}
 
-      <details>
-        <summary>Enter coordinates</summary>
-        <form class="manual" onSubmit={addManual}>
-          <input
-            placeholder="Name"
-            value={manual.name}
-            onInput={(e) => setManual({ ...manual, name: e.currentTarget.value })}
-          />
-          <input
-            placeholder="Latitude"
-            inputMode="decimal"
-            value={manual.lat}
-            onInput={(e) => setManual({ ...manual, lat: e.currentTarget.value })}
-          />
-          <input
-            placeholder="Longitude"
-            inputMode="decimal"
-            value={manual.lon}
-            onInput={(e) => setManual({ ...manual, lon: e.currentTarget.value })}
-          />
-          <button type="submit" class="btn">Add</button>
-        </form>
-      </details>
-    </div>
+        <div class="row gap wrap">
+          {"geolocation" in navigator && (
+            <button type="button" class="btn" onClick={useMyLocation}>📍 Use my location</button>
+          )}
+        </div>
+
+        <details>
+          <summary>Enter coordinates</summary>
+          <form class="manual" onSubmit={addManual}>
+            <input
+              placeholder="Name"
+              value={manual.name}
+              onInput={(e) => setManual({ ...manual, name: e.currentTarget.value })}
+            />
+            <input
+              placeholder="Latitude"
+              inputMode="decimal"
+              value={manual.lat}
+              onInput={(e) => setManual({ ...manual, lat: e.currentTarget.value })}
+            />
+            <input
+              placeholder="Longitude"
+              inputMode="decimal"
+              value={manual.lon}
+              onInput={(e) => setManual({ ...manual, lon: e.currentTarget.value })}
+            />
+            <button type="submit" class="btn">Add</button>
+          </form>
+        </details>
+      </div>
+    </dialog>
   );
 }
