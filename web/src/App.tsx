@@ -1,16 +1,16 @@
 import { signal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import { Dashboard } from "./components/Dashboard.tsx";
+import { Privacy } from "./components/Privacy.tsx";
 import { Settings } from "./components/Settings.tsx";
 import { relative, timeOf } from "./format.ts";
 import { anyLoading, now, oldestUpdate, refreshAll } from "./store.ts";
 
-type Route = "dashboard" | "settings";
-const route = signal<Route>(location.hash === "#settings" ? "settings" : "dashboard");
-addEventListener(
-  "hashchange",
-  () => (route.value = location.hash === "#settings" ? "settings" : "dashboard"),
-);
+type Route = "dashboard" | "settings" | "privacy";
+const routeOf = (hash: string): Route =>
+  hash === "#settings" ? "settings" : hash === "#privacy" ? "privacy" : "dashboard";
+const route = signal<Route>(routeOf(location.hash));
+addEventListener("hashchange", () => (route.value = routeOf(location.hash)));
 
 export const updateReady = signal<(() => void) | null>(null);
 const online = signal(navigator.onLine);
@@ -61,7 +61,7 @@ export function App() {
             class="btn-ghost"
             aria-label="Settings"
           >
-            {route.value === "settings" ? "Done" : "⚙︎"}
+            {route.value === "dashboard" ? "⚙︎" : route.value === "settings" ? "Done" : "Back"}
           </a>
         </nav>
       </header>
@@ -72,7 +72,14 @@ export function App() {
         </div>
       )}
       {!online.value && <div class="banner">Offline — showing last loaded forecasts.</div>}
-      {route.value === "settings" ? <Settings /> : <Dashboard focus={focus} />}
+      {route.value === "settings"
+        ? <Settings />
+        : route.value === "privacy"
+        ? <Privacy />
+        : <Dashboard focus={focus} />}
+      <footer class="footer">
+        <a href="#privacy">Privacy</a>
+      </footer>
     </>
   );
 }
