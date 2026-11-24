@@ -28,6 +28,10 @@ export interface HourOverride {
   cloudMid?: number;
   cloudHigh?: number;
   precip?: number;
+  /** m */
+  snowDepth?: number;
+  /** cm */
+  snowfall?: number;
   weatherCode?: number;
   horizonLowEast?: number | null;
   horizonLowWest?: number | null;
@@ -62,6 +66,8 @@ export function buildForecast(
       cloudMid: pick("cloudMid", 0),
       cloudHigh: pick("cloudHigh", 0),
       precip: pick("precip", 0),
+      snowDepth: pick("snowDepth", 0),
+      snowfall: pick("snowfall", 0),
       weatherCode: pick("weatherCode", 0),
       isDay: time.map((t) => ((t / H) % 24 >= 7 && (t / H) % 24 < 17 ? 1 : 0)),
       levels: PRESSURE_LEVELS.map((p) => ({

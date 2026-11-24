@@ -11,6 +11,7 @@
   --ev-sunrise: #f6b25e;
   --ev-sunset: #ef6f6c;
   --ev-inversion: #5cc8c0;
+  --ev-snow: #b8c8ec;
   --score-high: #4cc38a;
   --score-mid: #e2b93b;
   --score-low: #6b7895;
@@ -31,6 +32,7 @@
     --ev-sunrise: #e59a2f;
     --ev-sunset: #d9534f;
     --ev-inversion: #2a9d94;
+    --ev-snow: #8fa3d1;
     --score-high: #23a26a;
     --score-mid: #c49512;
     --score-low: #8c96aa;
@@ -465,6 +467,10 @@ input[type="checkbox"] {
 .ev-inversion {
   fill: var(--ev-inversion);
   background: var(--ev-inversion);
+}
+.ev-snow {
+  fill: var(--ev-snow);
+  background: var(--ev-snow);
 }
 
 .hour-details {

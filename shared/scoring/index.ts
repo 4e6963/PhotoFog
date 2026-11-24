@@ -10,6 +10,7 @@ import { EVENT_TYPES } from "../types.ts";
 import { scoreFog } from "./fog.ts";
 import { scoreGlow } from "./glow.ts";
 import { scoreInversion } from "./inversion.ts";
+import { scoreSnow } from "./snow.ts";
 import { HOUR, nearest } from "./util.ts";
 
 export interface EvaluateOptions {
@@ -26,6 +27,7 @@ export function scoreAll(f: Forecast, elevation = f.elevation): Record<EventType
     sunrise: scoreGlow(f, "sunrise"),
     sunset: scoreGlow(f, "sunset"),
     inversion: scoreInversion(f, elevation),
+    snow: scoreSnow(f),
   };
 }
 

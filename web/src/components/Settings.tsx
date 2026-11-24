@@ -23,8 +23,10 @@ export function Settings() {
           <b>Sunrise/sunset</b>{" "}
           looks for 30–70% mid/high clouds with a clear horizon ~80 km towards the sun.{" "}
           <b>Sea of clouds</b>{" "}
-          needs a cloud layer below your elevation, an inversion, and clear air above. Models are
-          imperfect — treat high scores as "worth checking the webcam".
+          needs a cloud layer below your elevation, an inversion, and clear air above.{" "}
+          <b>Snow cover</b>{" "}
+          needs ≥ ~10 cm of snow on the ground; fresh snow scores higher, thaw and rain lower.
+          Models are imperfect — treat high scores as "worth checking the webcam".
         </p>
       </section>
     </main>

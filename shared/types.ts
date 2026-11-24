@@ -1,6 +1,6 @@
 // Shared domain types. Pure TS: imported by the Deno server and the browser bundle.
 
-export const EVENT_TYPES = ["fog", "sunrise", "sunset", "inversion"] as const;
+export const EVENT_TYPES = ["fog", "sunrise", "sunset", "inversion", "snow"] as const;
 export type EventType = typeof EVENT_TYPES[number];
 
 export const EVENT_LABELS: Record<EventType, string> = {
@@ -8,6 +8,7 @@ export const EVENT_LABELS: Record<EventType, string> = {
   sunrise: "Colorful sunrise",
   sunset: "Colorful sunset",
   inversion: "Sea of clouds",
+  snow: "Snow cover",
 };
 
 export const EVENT_ICONS: Record<EventType, string> = {
@@ -15,6 +16,7 @@ export const EVENT_ICONS: Record<EventType, string> = {
   sunrise: "🌅",
   sunset: "🌇",
   inversion: "☁️",
+  snow: "❄️",
 };
 
 export interface Location {
@@ -87,6 +89,10 @@ export interface Forecast {
     cloudMid: number[];
     cloudHigh: number[];
     precip: number[];
+    /** Snow depth on the ground (m). */
+    snowDepth: number[];
+    /** Snowfall in the preceding hour (cm). */
+    snowfall: number[];
     weatherCode: number[];
     isDay: number[];
     levels: PressureLevel[];

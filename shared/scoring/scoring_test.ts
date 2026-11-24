@@ -3,6 +3,7 @@ import { buildForecast } from "../fixtures/builder.ts";
 import { scoreFog } from "./fog.ts";
 import { scoreGlow } from "./glow.ts";
 import { scoreInversion } from "./inversion.ts";
+import { scoreSnow } from "./snow.ts";
 import { evaluate, toWindows } from "./index.ts";
 
 const maxScore = (s: { score: number }[], from = 0, to = s.length) =>
@@ -95,6 +96,28 @@ Deno.test("inversion: valley-floor location cannot see it", () => {
 
 Deno.test("inversion: no low clouds -> low score", () => {
   assert(maxScore(scoreInversion(buildForecast(undefined, 1200), 1200)) < 10);
+});
+
+// ---- Snow ---------------------------------------------------------------
+
+Deno.test("snow: deep fresh snow on a cold day scores high in daylight", () => {
+  const s = scoreSnow(
+    buildForecast((i) => ({ temp: -3, snowDepth: 0.25, snowfall: i < 10 ? 1 : 0 })),
+  );
+  assert(s[12].score >= 90, `got ${s[12].score}`);
+  assert(s[12].reasons.some((r) => r.startsWith("fresh snow")));
+  assert(s[2].score < s[12].score, "night is damped");
+});
+
+Deno.test("snow: patchy or no snow scores zero", () => {
+  assertEquals(maxScore(scoreSnow(buildForecast(() => ({ snowDepth: 0.01 })))), 0);
+  assertEquals(maxScore(scoreSnow(buildForecast())), 0);
+});
+
+Deno.test("snow: thaw and rain lower the score", () => {
+  const cold = scoreSnow(buildForecast(() => ({ temp: -2, snowDepth: 0.2 })))[12].score;
+  const wet = scoreSnow(buildForecast(() => ({ temp: 7, snowDepth: 0.2, precip: 2 })))[12].score;
+  assert(wet < cold * 0.5, `${wet} vs ${cold}`);
 });
 
 // ---- Windows & evaluate -------------------------------------------------

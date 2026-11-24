@@ -1,7 +1,7 @@
 # PhotoFog
 
 PWA dashboard + push notifications for photography weather: **fog/mist**, **colorful
-sunrise/sunset** and **sea of clouds (inversions)**. Forecast data from
+sunrise/sunset**, **sea of clouds (inversions)** and **closed snow cover**. Forecast data from
 [Open-Meteo](https://open-meteo.com/) (no API key).
 
 **Live at [photofog.app](https://photofog.app/)**

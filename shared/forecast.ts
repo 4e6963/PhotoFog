@@ -17,6 +17,8 @@ const SURFACE_VARS = [
   "cloud_cover_mid",
   "cloud_cover_high",
   "precipitation",
+  "snowfall",
+  "snow_depth",
   "weather_code",
   "is_day",
 ];
@@ -111,6 +113,8 @@ export function normalizeForecast(
       cloudMid: nums(h.cloud_cover_mid, n, 0),
       cloudHigh: nums(h.cloud_cover_high, n, 0),
       precip: nums(h.precipitation, n, 0),
+      snowDepth: nums(h.snow_depth, n, 0),
+      snowfall: nums(h.snowfall, n, 0),
       weatherCode: nums(h.weather_code, n, 0),
       isDay: nums(h.is_day, n, 0),
       levels,
