@@ -114,6 +114,16 @@ Deno.test("snow: patchy or no snow scores zero", () => {
   assertEquals(maxScore(scoreSnow(buildForecast())), 0);
 });
 
+Deno.test("snow: forecasts without snow fields (old cache) do not throw", () => {
+  const f = buildForecast();
+  // deno-lint-ignore no-explicit-any
+  const h = f.hourly as any;
+  delete h.snowDepth;
+  delete h.snowfall;
+  assertEquals(maxScore(scoreSnow(f)), 0);
+  evaluate(f, { minScore: 40 });
+});
+
 Deno.test("snow: thaw and rain lower the score", () => {
   const cold = scoreSnow(buildForecast(() => ({ temp: -2, snowDepth: 0.2 })))[12].score;
   const wet = scoreSnow(buildForecast(() => ({ temp: 7, snowDepth: 0.2, precip: 2 })))[12].score;

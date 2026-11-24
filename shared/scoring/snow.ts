@@ -7,20 +7,23 @@ const FRESH_HOURS = 24;
 
 export function scoreSnow(f: Forecast): HourScore[] {
   const h = f.hourly;
+  // Forecasts cached before snow fields existed (service worker, server cache) lack them.
+  const depth = h.snowDepth ?? [];
+  const snowfall = h.snowfall ?? [];
   return h.time.map((time, i) => {
-    const depthCm = h.snowDepth[i] * 100;
+    const depthCm = (depth[i] ?? 0) * 100;
     // ~2 cm is patchy, from ~10 cm the ground is reliably closed.
     const depthS = ramp(depthCm, 2, 10);
     if (depthS === 0) return { time, score: 0, reasons: [] };
 
     let fresh = 0;
-    for (let k = Math.max(0, i - FRESH_HOURS + 1); k <= i; k++) fresh += h.snowfall[k];
+    for (let k = Math.max(0, i - FRESH_HOURS + 1); k <= i; k++) fresh += snowfall[k] ?? 0;
     const freshS = ramp(fresh, 0.5, 5);
     const temp = h.temp[i];
 
     let s = depthS * (0.7 + 0.3 * freshS); // fresh snow on trees & roofs looks best
     s *= 0.6 + 0.4 * invRamp(temp, 1, 6); // thaw: wet, grey, patchy
-    const rain = h.precip[i] > 0.3 && h.snowfall[i] < 0.1;
+    const rain = h.precip[i] > 0.3 && (snowfall[i] ?? 0) < 0.1;
     if (rain) s *= 0.6;
     s *= lightFactor(f, time);
 
