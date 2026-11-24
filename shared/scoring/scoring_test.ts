@@ -144,6 +144,14 @@ Deno.test("snow: rising snow depth counts as fresh snow, not rain", () => {
   assert(!s.reasons.some((r) => r.startsWith("rain")), s.reasons.join());
 });
 
+Deno.test("snow: max sensitivity reaches 60 points at 2 cm", () => {
+  const f = buildForecast(() => ({ temp: -3, snowDepth: 0.02 }));
+  assertEquals(evaluate(f, { minScore: 40, sensitivity: { snow: 0 } }).hourly.snow[12].score, 0);
+  assertEquals(evaluate(f, { minScore: 40, sensitivity: { snow: 20 } }).hourly.snow[12].score, 60);
+  const deep = buildForecast(() => ({ temp: -3, snowDepth: 0.1 }));
+  assertEquals(scoreSnow(deep, 20)[12].score, scoreSnow(deep)[12].score, "deep snow unchanged");
+});
+
 Deno.test("snow: thaw and rain lower the score", () => {
   const cold = scoreSnow(buildForecast(() => ({ temp: -2, snowDepth: 0.2 })))[12].score;
   const wet = scoreSnow(buildForecast(() => ({ temp: 7, snowDepth: 0.2, precip: 2 })))[12].score;

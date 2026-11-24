@@ -7,8 +7,18 @@ import { invRamp, lightFactor, ramp, round } from "./util.ts";
 /** Fresh snow is summed over this many preceding hours (incl. the current one). */
 const FRESH_HOURS = 24;
 
-export function scoreSnow(f: Forecast): HourScore[] {
+/**
+ * Depth ramp (cm) by sensitivity (-20..+20): default 2..10 cm. At +20 it is 1..2.75 cm, so that
+ * 2 cm of old snow on a cold day scores 40 raw, i.e. 60 after the +20 offset.
+ */
+export function snowDepthRamp(sensitivity = 0): [number, number] {
+  const t = Math.max(-1, Math.min(1, sensitivity / 20));
+  return [2 - t, 10 - 7.25 * t];
+}
+
+export function scoreSnow(f: Forecast, sensitivity = 0): HourScore[] {
   const h = f.hourly;
+  const [minCm, fullCm] = snowDepthRamp(sensitivity);
   // Forecasts cached before snow fields existed (service worker, server cache) lack them.
   const depth = h.snowDepth ?? [];
   const snowfall = h.snowfall ?? [];
@@ -17,8 +27,8 @@ export function scoreSnow(f: Forecast): HourScore[] {
   return h.time.map((time, i) => {
     if (lightFactor(f, time) < 1) return { time, score: 0, reasons: [] };
     const depthCm = depthAt(i) * 100;
-    // ~2 cm is patchy, from ~10 cm the ground is reliably closed.
-    const depthS = ramp(depthCm, 2, 10);
+    // By default ~2 cm is patchy, from ~10 cm the ground is reliably closed.
+    const depthS = ramp(depthCm, minCm, fullCm);
     if (depthS === 0) return { time, score: 0, reasons: [] };
 
     // Model snowfall and snow depth do not always agree, so also count the depth increase.

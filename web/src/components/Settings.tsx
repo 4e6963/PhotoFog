@@ -25,8 +25,9 @@ export function Settings() {
           <b>Sea of clouds</b>{" "}
           needs a cloud layer below your elevation, an inversion, and clear air above.{" "}
           <b>Snow cover</b>{" "}
-          needs ≥ ~10 cm of snow on the ground; fresh snow scores higher, thaw and rain lower.
-          Models are imperfect — treat high scores as "worth checking the webcam".
+          needs ≥ ~10 cm of snow on the ground; fresh snow scores higher, thaw and rain lower; at
+          maximum sensitivity 2 cm already count. Models are imperfect — treat high scores as "worth
+          checking the webcam".
         </p>
       </section>
     </main>

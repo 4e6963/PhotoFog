@@ -21,13 +21,17 @@ export interface EvaluateOptions {
   minScore: number;
 }
 
-export function scoreAll(f: Forecast, elevation = f.elevation): Record<EventType, HourScore[]> {
+export function scoreAll(
+  f: Forecast,
+  elevation = f.elevation,
+  sensitivity: Location["sensitivity"] = {},
+): Record<EventType, HourScore[]> {
   return {
     fog: scoreFog(f),
     sunrise: scoreGlow(f, "sunrise"),
     sunset: scoreGlow(f, "sunset"),
     inversion: scoreInversion(f, elevation),
-    snow: scoreSnow(f),
+    snow: scoreSnow(f, sensitivity?.snow),
   };
 }
 
@@ -61,7 +65,7 @@ export function toWindows(type: EventType, hours: HourScore[], minScore: number)
 }
 
 export function evaluate(f: Forecast, opts: EvaluateOptions): Evaluation {
-  const raw = scoreAll(f, opts.elevation ?? f.elevation);
+  const raw = scoreAll(f, opts.elevation ?? f.elevation, opts.sensitivity);
   const events = opts.events ?? EVENT_TYPES;
   const hourly = {} as Record<EventType, HourScore[]>;
   const windows: EventWindow[] = [];
