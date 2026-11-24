@@ -10,7 +10,7 @@ import { EVENT_TYPES } from "../types.ts";
 import { scoreFog } from "./fog.ts";
 import { scoreGlow } from "./glow.ts";
 import { scoreInversion } from "./inversion.ts";
-import { scoreSnow } from "./snow.ts";
+import { mergeSnowWindows, scoreSnow } from "./snow.ts";
 import { HOUR, nearest } from "./util.ts";
 
 export interface EvaluateOptions {
@@ -73,7 +73,9 @@ export function evaluate(f: Forecast, opts: EvaluateOptions): Evaluation {
       score: h.score === 0 ? 0 : Math.max(0, Math.min(100, h.score + offset)),
     }));
     if (!events.includes(type)) continue;
-    for (const w of toWindows(type, hourly[type], opts.minScore)) {
+    let typeWindows = toWindows(type, hourly[type], opts.minScore);
+    if (type === "snow") typeWindows = mergeSnowWindows(typeWindows, hourly[type]);
+    for (const w of typeWindows) {
       if (type === "sunrise" || type === "sunset") {
         w.at = nearest(type === "sunrise" ? f.daily.sunrise : f.daily.sunset, w.peakTime);
       }

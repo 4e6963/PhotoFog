@@ -106,7 +106,7 @@ Deno.test("snow: deep fresh snow on a cold day scores high in daylight", () => {
   );
   assert(s[12].score >= 90, `got ${s[12].score}`);
   assert(s[12].reasons.some((r) => r.startsWith("fresh snow")));
-  assert(s[2].score < s[12].score, "night is damped");
+  assertEquals(s[2].score, 0, "snow cover is only scored in daylight");
 });
 
 Deno.test("snow: patchy or no snow scores zero", () => {
@@ -122,6 +122,26 @@ Deno.test("snow: forecasts without snow fields (old cache) do not throw", () => 
   delete h.snowfall;
   assertEquals(maxScore(scoreSnow(f)), 0);
   evaluate(f, { minScore: 40 });
+});
+
+Deno.test("snow: one window per day even if the score dips below the threshold", () => {
+  // Day 1 midday thaw dips the score; nights are 0.
+  const f = buildForecast((i) => ({ snowDepth: 0.2, temp: i % 24 >= 11 && i % 24 <= 13 ? 8 : -2 }));
+  const e = evaluate(f, { minScore: 60, events: ["snow"] });
+  assertEquals(e.windows.length, 2);
+  assert(e.hourly.snow[12].score < 60);
+});
+
+Deno.test("snow: rising snow depth counts as fresh snow, not rain", () => {
+  const f = buildForecast((i) => ({
+    temp: 1.5,
+    precip: 2,
+    snowfall: 0,
+    snowDepth: 0.1 + 0.02 * i,
+  }));
+  const s = scoreSnow(f)[12];
+  assert(s.reasons.some((r) => r.startsWith("fresh snow")), s.reasons.join());
+  assert(!s.reasons.some((r) => r.startsWith("rain")), s.reasons.join());
 });
 
 Deno.test("snow: thaw and rain lower the score", () => {
